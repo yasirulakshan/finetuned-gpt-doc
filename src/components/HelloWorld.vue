@@ -1,79 +1,100 @@
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="d-flex align-center text-center fill-height">
-      <v-img
-        contain
-        height="300"
-        src="@/assets/logo.svg"
-      />
-
-      <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
-
-      <h1 class="text-h2 font-weight-bold">Vuetify</h1>
-
-      <div class="py-14" />
-
-      <v-row class="d-flex align-center justify-center">
-        <v-col cols="auto">
-          <v-btn
-            href="https://next.vuetifyjs.com/components/all/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-view-dashboard"
-              size="large"
-              start
-            />
-
-            Components
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            color="primary"
-            href="https://next.vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            min-width="228"
-            rel="noopener noreferrer"
-            size="x-large"
-            target="_blank"
-            variant="flat"
-          >
-            <v-icon
-              icon="mdi-speedometer"
-              size="large"
-              start
-            />
-
-            Get Started
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            href="https://community.vuetifyjs.com/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-account-group"
-              size="large"
-              start
-            />
-
-            Community
-          </v-btn>
+  <v-container>
+      <v-row style="height: 500px;">
+        <v-col>
+          <v-sheet class="pa-2 rounded-lg" elevation="12">
+            <div class="chat-container">
+              <div class="chat-header">
+                <h3>Finetune AI Bot</h3>
+              </div>
+              <div class="chat-messages">
+                <ul>
+                  <li v-for="message in messages" :key="message.id" :style="{
+                    backgroundColor: message.type === 'A' ? '#FCF6F5FF' : '#FAEBEFFF',
+                    textAlign : message.type === 'A' ? 'left' : 'right'
+                    }">
+                    <p>{{ message.text }}</p>
+                  </li>
+                </ul>
+              </div>
+              <div class="chat-input">
+                <input type="text" v-model="newMessageText" @keyup.enter="addMessage" />
+                <button @click="addMessage">Send</button>
+              </div>
+            </div>
+          </v-sheet>
         </v-col>
       </v-row>
-    </v-responsive>
   </v-container>
 </template>
 
-<script setup>
-  //
+<script>
+export default {
+  data() {
+    return {
+      messages: [
+        { id: 1, type:"A", text: "Hello!" },
+        { id: 2, type:"A", text: "How are you?" },
+        { id: 3, type:"Q", text: "I'm good, thanks for asking." }
+      ],
+      newMessageText: ""
+    };
+  },
+  methods: {
+    addMessage() {
+      this.messages.push({
+        id: this.messages.length + 1,
+        text: this.newMessageText
+      });
+      this.newMessageText = "";
+    }
+  }
+};
 </script>
+
+
+<style>
+/* *{
+  border:1px solid black;
+} */
+.chat-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.chat-header {
+  background-color: #5B84B1FF;
+  padding: 10px;
+  text-align: center;
+}
+
+.chat-messages {
+  background-color: #9CC3D5FF;
+  height: 70vh;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+.chat-messages ul li{
+  margin-bottom: 5px;;
+}
+
+.chat-input {
+  background-color: #5B84B1FF;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-input input[type="text"] {
+  flex: 1;
+  padding: 5px;
+  background-color: #9CC3D5FF;
+}
+
+.chat-input button {
+  padding: 5px 10px;
+  background-color: #9CC3D5FF;
+  margin-left: 5px;
+}
+</style>
