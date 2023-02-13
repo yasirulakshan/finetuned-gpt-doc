@@ -13,12 +13,23 @@
           <div class="chat-messages">
             <v-row v-for="message in messages" :key="message.id" :justify="message.type === 'A' ? 'start' : 'end'"
               no-gutters>
+
               <div class="pa-3 mt-3 rounded-xl sm-12" :id="'chat-' + message.id" round="4" :style="{
                 textAlign: message.type === 'A' ? 'start' : 'end',
-                backgroundColor: message.type === 'A' ? '#FCF6F5FF' : '#FAEBEFFF'
-              }"> <v-icon v-if="message.type === 'A'" color="green">mdi-account-badge-outline</v-icon> {{
-  message.text
-}} <v-icon v-if="message.type !== 'A'" color="green">mdi-chat</v-icon> </div>
+                backgroundColor: message.type === 'A' ? '#FCF6F5FF' : '#FAEBEFFF',
+                maxWidth: '50%',
+                overflowWrap: 'break-word'
+              }">
+
+                <v-icon v-if="message.type === 'A'" color="green">mdi-account-badge-outline</v-icon>
+                {{ message.text }}
+                <v-icon v-if="message.type !== 'A'" color="green">mdi-chat</v-icon>
+
+                <div style="font-size: 10px;" v-if="message.type === 'Q' && message.sending">Sending <v-icon
+                    color="orange">mdi-message-text-fast</v-icon></div>
+                <div style="font-size: 10px;" v-if="message.type === 'Q' && message.sent">Sent {{ message.time }} <v-icon
+                    color="green">mdi-check-all</v-icon> </div>
+              </div>
             </v-row>
           </div>
           <div>
@@ -53,8 +64,8 @@ export default {
   data() {
     return {
       messages: [
-        { id: 1, type: "A", text: "Hello!" },
-        { id: 2, type: "Q", text: "I'm good, thanks for asking." }
+        { id: 1, type: "Q", text: "Hello!", sending: true, sent: true },
+        { id: 2, type: "A", text: "I'm good, thanks for asking." }
       ],
       options: ["Finetune AI Bot", "Base Model"],
       selectedOption: "Finetune AI Bot",
@@ -67,7 +78,10 @@ export default {
       this.messages.push({
         id: this.messages.length + 1,
         text: this.newMessageText,
-        type: "Q"
+        type: "Q",
+        sending: false,
+        sent: false,
+        time: 0
       });
 
       this.newMessageText = "";
@@ -84,7 +98,7 @@ export default {
       let chat_messagesRect = chat_messages.getBoundingClientRect();
 
       if (elementTop < chat_messagesRect.top || elementBottom > chat_messagesRect.bottom) {
-        
+
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
@@ -97,7 +111,16 @@ export default {
         autoplay: true
       });
 
-      const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+      this.messages.at(this.messages.length - 1).sending = true
+
+      // const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+
+      setTimeout(() => {
+        this.messages.at(this.messages.length - 1).sending = false
+        this.messages.at(this.messages.length - 1).sent = true
+        let date = new Date();
+        this.messages.at(this.messages.length - 1).time = date.getHours() + ":" + date.getMinutes()
+      }, 2000);
 
 
     }
@@ -107,7 +130,7 @@ export default {
 
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
 
 * {
   font-family: 'Poppins', sans-serif;
