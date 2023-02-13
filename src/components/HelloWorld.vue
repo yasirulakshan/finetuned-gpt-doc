@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row style="height: 500px;" justify="center">
-      <v-col cols="8" >
+      <v-col cols="8">
         <v-sheet class="pa-2 rounded-lg" elevation="12">
 
           <v-card elevation="4">
@@ -11,7 +11,8 @@
           </v-card>
 
           <div class="chat-messages">
-            <v-row v-for="message in messages" :key="message.id" :justify="message.type === 'A' ? 'start' : 'end'" no-gutters>
+            <v-row v-for="message in messages" :key="message.id" :justify="message.type === 'A' ? 'start' : 'end'"
+              no-gutters>
               <div class="pa-3 mt-3 rounded-xl sm-12" :id="'chat-' + message.id" round="4" :style="{
                 textAlign: message.type === 'A' ? 'start' : 'end',
                 backgroundColor: message.type === 'A' ? '#FCF6F5FF' : '#FAEBEFFF'
@@ -75,8 +76,20 @@ export default {
 
       await this.addMessage();
 
+      let element = document.getElementById("chat-" + this.messages.length)
+      let chat_messages = document.getElementsByClassName("chat-messages")[0]
+      let elementRect = element.getBoundingClientRect();
+      let elementTop = elementRect.top;
+      let elementBottom = elementRect.bottom;
+      let chat_messagesRect = chat_messages.getBoundingClientRect();
+
+      if (elementTop < chat_messagesRect.top || elementBottom > chat_messagesRect.bottom) {
+        
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       anime({
-        targets: '#chat-' + this.messages.length,
+        targets: element,
         scale: [0, 1],
         translateY: [100, 0],
         duration: 150,
@@ -117,8 +130,4 @@ export default {
   border-radius: 10px;
   background-color: #467fa0;
 }
-
-
-
-
 </style>
