@@ -3,13 +3,11 @@
     <v-row style="height: 500px;" justify="center">
       <v-col cols="12">
         <v-sheet class="pa-2 rounded-lg" elevation="12">
-
           <v-card elevation="4">
             <div class="pa-4 text-center">
-              <h3>{{ selectedOption }} <v-icon color="green">mdi-account-badge-outline</v-icon></h3>
+              <h3>{{ options.filter(e => e.value == selectedOption)[0].name }} <v-icon color="green">mdi-account-badge-outline</v-icon></h3>
             </div>
           </v-card>
-
           <div class="chat-messages">
             <v-row v-for="message in messages" :key="message.id" :justify="message.type === 'A' ? 'start' : 'end'"
               no-gutters>
@@ -33,23 +31,22 @@
               </div>
             </v-row>
           </div>
-
           <v-row class="pt-5" align="center">
-            <v-col xs="10" sm="10" md="10" lg="11" xl="11"><v-text-field variant="outlined" label="Type here"
-                hide-details v-model="newMessageText" required></v-text-field>
+            <v-col xs="10" sm="10" md="10" lg="11" xl="11">
+              <v-text-field :disabled="!textBox" variant="outlined" label="Type here" hide-details
+                v-model="newMessageText" required></v-text-field>
             </v-col>
             <v-col xs="2" sm="2" md="2" lg="1" xl="1">
-              <v-btn @click="getData" icon="mdi-send" color="primary"></v-btn>
+              <v-btn :disabled="!this.sendBtn" @click="getData" icon="mdi-send" color="primary"></v-btn>
             </v-col>
           </v-row>
           <v-row class="pb-5">
             <v-col cols="6">
-              <v-select v-model="selectedOption" variant="outlined" :items="options" hide-details required
-                label="Choose the model" @change="addMessage" ></v-select>
+              <v-select v-model="selectedOption" variant="outlined" item-value="value" item-title="name" :items="options" hide-details required
+                label="Choose the model" @update:model-value="resetChat">
+              </v-select>
             </v-col>
           </v-row>
-
-
         </v-sheet>
       </v-col>
     </v-row>
@@ -68,10 +65,15 @@ export default {
     return {
       ready: true,
       messages: [],
-      options: ["Finetuned AI Bot", "Base Model"],
-      selectedOption: "Finetuned AI Bot",
+      options: [
+        { name:'Base Model', value:'base'},
+        { name:'Fine Tuned Model', value: 'tuned'}
+      ],
+      selectedOption: "base",
       newMessageText: '',
       polly: null,
+      textBox: true,
+      sendBtn: true
     };
   },
   mounted() {
@@ -87,7 +89,7 @@ export default {
   methods: {
     async addMessage() {
 
-      this.messages.push({
+      await this.messages.push({
         id: this.messages.length + 1,
         text: this.newMessageText,
         type: "Q",
@@ -96,11 +98,18 @@ export default {
         time: 0
       });
 
+      this.sendBtn = false
+      this.textBox = false
+
+      this.moveToTopWithAnimate();
+
       let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt',{
-        prompt: this.newMessageText
+        prompt: this.newMessageText,
+        model: this.selectedOption
       });
 
-      this.messages.push({
+
+      await this.messages.push({
         id: this.messages.length + 1,
         text: res.data.choices[0].text,
         type: "A",
@@ -109,19 +118,22 @@ export default {
         time: 0
       });
 
+      this.sendBtn = true
+      this.textBox = true
+
+
+      this.moveToTopWithAnimate();
+
       this.messages.at(this.messages.length - 2).sending = false
       this.messages.at(this.messages.length - 2).sent = true
       let date = new Date();
       this.messages.at(this.messages.length - 2).time = date.getHours() + ":" + date.getMinutes()
 
       this.newMessageText = "";
-    },
-    resetChat(){
-      console.log("Exicuted")
-    },
-    async getData() {
 
-      await this.addMessage();
+    },
+    moveToTopWithAnimate() {
+
 
       let element = document.getElementById("chat-" + this.messages.length)
       let chat_messages = document.getElementsByClassName("chat-messages")[0]
@@ -143,6 +155,14 @@ export default {
         autoplay: true
       });
 
+
+    },
+    resetChat(event) {
+      this.messages = []
+    },
+    async getData() {
+
+      await this.addMessage();
 
       const params = {
         OutputFormat: 'mp3',
