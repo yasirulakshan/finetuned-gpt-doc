@@ -45,7 +45,7 @@
           <v-row class="pb-5">
             <v-col cols="6">
               <v-select v-model="selectedOption" variant="outlined" :items="options" hide-details required
-                label="Choose the model"></v-select>
+                label="Choose the model" @change="addMessage" ></v-select>
             </v-col>
           </v-row>
 
@@ -61,39 +61,63 @@
 import axios from 'axios';
 import anime from 'animejs/lib/anime.es.js';
 
+
+
 export default {
   data() {
     return {
+      ready: true,
       messages: [],
-      options: ["Finetune AI Bot", "Base Model"],
-      selectedOption: "Finetune AI Bot",
+      options: ["Finetuned AI Bot", "Base Model"],
+      selectedOption: "Finetuned AI Bot",
       newMessageText: '',
       polly: null,
     };
   },
   mounted() {
 
-      this.polly = new AWS.Polly({
-        region: 'us-east-1',
-        accessKeyId: 'AKIAZZIJIA56NOTTOEVS',
-        secretAccessKey: '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',
-      });
-      console.log(this.polly)
-  
+    this.polly = new AWS.Polly({
+      region: 'us-east-1',
+      accessKeyId: 'AKIAZZIJIA56NOTTOEVS',
+      secretAccessKey: '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',
+    });
+
+
   },
   methods: {
-    addMessage() {
+    async addMessage() {
 
       this.messages.push({
         id: this.messages.length + 1,
         text: this.newMessageText,
         type: "Q",
+        sending: true,
+        sent: false,
+        time: 0
+      });
+
+      let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt',{
+        prompt: this.newMessageText
+      });
+
+      this.messages.push({
+        id: this.messages.length + 1,
+        text: res.data.choices[0].text,
+        type: "A",
         sending: false,
         sent: false,
         time: 0
       });
 
+      this.messages.at(this.messages.length - 2).sending = false
+      this.messages.at(this.messages.length - 2).sent = true
+      let date = new Date();
+      this.messages.at(this.messages.length - 2).time = date.getHours() + ":" + date.getMinutes()
+
       this.newMessageText = "";
+    },
+    resetChat(){
+      console.log("Exicuted")
     },
     async getData() {
 
@@ -107,7 +131,6 @@ export default {
       let chat_messagesRect = chat_messages.getBoundingClientRect();
 
       if (elementTop < chat_messagesRect.top || elementBottom > chat_messagesRect.bottom) {
-
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
@@ -120,20 +143,10 @@ export default {
         autoplay: true
       });
 
-      this.messages.at(this.messages.length - 1).sending = true
-
-      // const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-
-      setTimeout(() => {
-        this.messages.at(this.messages.length - 1).sending = false
-        this.messages.at(this.messages.length - 1).sent = true
-        let date = new Date();
-        this.messages.at(this.messages.length - 1).time = date.getHours() + ":" + date.getMinutes()
-      }, 2000);
 
       const params = {
         OutputFormat: 'mp3',
-        Text: "Test voice",
+        Text: this.messages.at(this.messages.length - 1).text,
         VoiceId: 'Joanna'
       };
 
