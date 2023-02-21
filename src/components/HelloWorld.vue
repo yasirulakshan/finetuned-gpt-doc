@@ -38,7 +38,7 @@
                 v-model="newMessageText" required></v-text-field>
             </v-col>
             <v-col xs="2" sm="2" md="2" lg="1" xl="1">
-              <v-btn :disabled="!this.sendBtn" @click="getData" icon="mdi-send" color="primary"></v-btn>
+              <v-btn :disabled="!this.sendBtn" @click="addMessage" icon="mdi-send" color="primary"></v-btn>
             </v-col>
           </v-row>
           <v-row class="pb-5">
@@ -58,7 +58,7 @@
 
 import axios from 'axios';
 import anime from 'animejs/lib/anime.es.js';
-
+import swal from 'sweetalert';
 
 
 export default {
@@ -75,7 +75,8 @@ export default {
       polly: null,
       textBox: true,
       sendBtn: true,
-      fullText: ''
+      fullText: '',
+      partialFullText: ''
     };
   },
   mounted() {
@@ -105,40 +106,73 @@ export default {
 
       this.moveToTopWithAnimate();
 
-      if (message.type === "Q") {
-        this.fullText += "Q:" + message.text + "\n";
-      } else {
-        this.fullText += "A:" + message.text + "\n";
-      }
-      console.log(this.fullText)
+
+      this.partialFullText += "Q: " + this.newMessageText + "\nA:";
+      console.log(this.partialFullText);
 
       let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt', {
-        prompt: this.fullText,
+        prompt: this.partialFullText,
         model: this.selectedOption
+      }).then(async res => {
+
+        if (res.status == 200) {
+
+          res = res.data.choices[0].text.replace(/\\n/g, "")
+          res = res.replace(/\\/g, "")
+          res = res.replace(/!/g, "")
+
+          this.partialFullText += res + "\n\n";
+          this.fullText = this.partialFullText
+
+          await this.messages.push({
+            id: this.messages.length + 1,
+            text: res,
+            type: "A",
+            sending: false,
+            sent: false,
+            time: 0
+          });
+
+          this.sendBtn = true
+          this.textBox = true
+
+          this.moveToTopWithAnimate();
+
+          this.messages.at(this.messages.length - 2).sending = false
+          this.messages.at(this.messages.length - 2).sent = true
+          let date = new Date();
+          this.messages.at(this.messages.length - 2).time = date.getHours() + ":" + date.getMinutes()
+
+          this.newMessageText = "";
+
+          const params = {
+          OutputFormat: 'mp3',
+          Text: this.messages.at(this.messages.length - 1).text,
+          VoiceId: 'Joanna'
+        };
+
+        const response = await this.polly.synthesizeSpeech(params).promise();
+        const aContext = new AudioContext();
+
+        const source = aContext.createBufferSource();
+        source.buffer = await aContext.decodeAudioData(response.AudioStream.buffer);
+        source.connect(aContext.destination);
+        source.start();
+
+
+        }
+
+
+      }).catch(e => {
+
+        this.partialFullText = this.fullText
+        swal(e.response.data.message, e.response.data.statusCode.toString(), "error").then((value) => {
+          window.location.reload();
+        });
+
+
+
       });
-
-
-      await this.messages.push({
-        id: this.messages.length + 1,
-        text: res.data.choices[0].text,
-        type: "A",
-        sending: false,
-        sent: false,
-        time: 0
-      });
-
-      this.sendBtn = true
-      this.textBox = true
-
-
-      this.moveToTopWithAnimate();
-
-      this.messages.at(this.messages.length - 2).sending = false
-      this.messages.at(this.messages.length - 2).sent = true
-      let date = new Date();
-      this.messages.at(this.messages.length - 2).time = date.getHours() + ":" + date.getMinutes()
-
-      this.newMessageText = "";
 
     },
     moveToTopWithAnimate() {
@@ -168,26 +202,6 @@ export default {
     },
     resetChat(event) {
       this.messages = []
-    },
-    async getData() {
-
-      await this.addMessage();
-
-      const params = {
-        OutputFormat: 'mp3',
-        Text: this.messages.at(this.messages.length - 1).text,
-        VoiceId: 'Joanna'
-      };
-
-      const response = await this.polly.synthesizeSpeech(params).promise();
-      const aContext = new AudioContext();
-
-      const source = aContext.createBufferSource();
-      source.buffer = await aContext.decodeAudioData(response.AudioStream.buffer);
-      source.connect(aContext.destination);
-      source.start();
-
-
     }
   }
 };
