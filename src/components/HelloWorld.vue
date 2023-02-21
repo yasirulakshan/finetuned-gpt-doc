@@ -5,7 +5,8 @@
         <v-sheet class="pa-2 rounded-lg" elevation="12">
           <v-card elevation="4">
             <div class="pa-4 text-center">
-              <h3>{{ options.filter(e => e.value == selectedOption)[0].name }} <v-icon color="green">mdi-account-badge-outline</v-icon></h3>
+              <h3>{{ options.filter(e => e.value == selectedOption)[0].name }} <v-icon
+                  color="green">mdi-account-badge-outline</v-icon></h3>
             </div>
           </v-card>
           <div class="chat-messages">
@@ -42,8 +43,8 @@
           </v-row>
           <v-row class="pb-5">
             <v-col cols="6">
-              <v-select v-model="selectedOption" variant="outlined" item-value="value" item-title="name" :items="options" hide-details required
-                label="Choose the model" @update:model-value="resetChat">
+              <v-select v-model="selectedOption" variant="outlined" item-value="value" item-title="name" :items="options"
+                hide-details required label="Choose the model" @update:model-value="resetChat">
               </v-select>
             </v-col>
           </v-row>
@@ -66,14 +67,15 @@ export default {
       ready: true,
       messages: [],
       options: [
-        { name:'Base Model', value:'base'},
-        { name:'Fine Tuned Model', value: 'tuned'}
+        { name: 'Base Model', value: 'base' },
+        { name: 'Fine Tuned Model', value: 'tuned' }
       ],
       selectedOption: "base",
       newMessageText: '',
       polly: null,
       textBox: true,
-      sendBtn: true
+      sendBtn: true,
+      fullText: ''
     };
   },
   mounted() {
@@ -103,8 +105,15 @@ export default {
 
       this.moveToTopWithAnimate();
 
-      let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt',{
-        prompt: this.newMessageText,
+      if (message.type === "Q") {
+        this.fullText += "Q:" + message.text + "\n";
+      } else {
+        this.fullText += "A:" + message.text + "\n";
+      }
+      console.log(this.fullText)
+
+      let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt', {
+        prompt: this.fullText,
         model: this.selectedOption
       });
 
