@@ -106,12 +106,12 @@ export default {
 
       this.moveToTopWithAnimate();
 
-
-      this.partialFullText += "Q: " + this.newMessageText + "\nA:";
-      console.log(this.partialFullText);
+      // this.partialFullText += "Q: " + this.newMessageText + "\nA:";
+      // console.log(this.partialFullText);
 
       let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt', {
-        prompt: this.partialFullText,
+        // prompt: this.partialFullText,
+        prompt: this.newMessageText + "\\n\\n###\\n\\n",
         model: this.selectedOption
       }).then(async res => {
 
@@ -120,9 +120,10 @@ export default {
           res = res.data.choices[0].text.replace(/\\n/g, "")
           res = res.replace(/\\/g, "")
           res = res.replace(/!/g, "")
+          res = res.replace(/#/g, "")
 
-          this.partialFullText += res + "\n\n";
-          this.fullText = this.partialFullText
+          // this.partialFullText += res + "\n\n";
+          // this.fullText = this.partialFullText
 
           await this.messages.push({
             id: this.messages.length + 1,
@@ -165,12 +166,10 @@ export default {
 
       }).catch(e => {
 
-        this.partialFullText = this.fullText
+        // this.partialFullText = this.fullText
         swal(e.response.data.message, e.response.data.statusCode.toString(), "error").then((value) => {
           window.location.reload();
         });
-
-
 
       });
 
