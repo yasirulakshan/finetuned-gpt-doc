@@ -35,7 +35,7 @@
           <v-row class="pt-5" align="center">
             <v-col xs="8" sm="10" md="11" lg="11" xl="11">
               <v-text-field :disabled="!textBox" variant="outlined" label="Type here" hide-details
-                v-model="newMessageText" required></v-text-field>
+                v-model="newMessageText" required @keyup.enter = "addMessage"></v-text-field>
             </v-col>
             <v-col xs="3" sm="2" md="1" lg="1" xl="1" align="right">
               <v-btn :disabled="!this.sendBtn" @click="addMessage" icon="mdi-send" color="#E68131"></v-btn>
