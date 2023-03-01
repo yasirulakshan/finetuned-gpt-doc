@@ -109,35 +109,36 @@ export default {
       // this.partialFullText += "Q: " + this.newMessageText + "\nA:";
       // console.log(this.partialFullText);
 
-      let res = await axios.post('https://gpt3promptsapp-production.up.railway.app/api/v1/prompt', {
+      let res = await axios.post('http://127.0.0.1:5000/askQuestion', {
         // prompt: this.partialFullText,
-        prompt: this.newMessageText + "\\n\\n###\\n\\n",
-        model: this.selectedOption
+        question : this.newMessageText,
       }).then(async res => {
 
         if (res.status == 200) {
 
-          res = res.data.choices[0].text.replace(/\\n/g, "")
-          res = res.replace(/\\/g, "")
-          res = res.replace(/!/g, "")
-          res = res.replace(/#/g, "")
+          // console.log("response:" , res);
+
+          // res = res.data.choices[0].text.replace(/\\n/g, "")
+          // res = res.replace(/\\/g, "")
+          // res = res.replace(/!/g, "")
+          // res = res.replace(/#/g, "")
 
           // this.partialFullText += res + "\n\n";
           // this.fullText = this.partialFullText
 
           await this.messages.push({
             id: this.messages.length + 1,
-            text: res,
+            text: res.data,
             type: "A",
             sending: false,
             sent: false,
             time: 0
           });
 
-          this.sendBtn = true
-          this.textBox = true
+        this.sendBtn = true
+        this.textBox = true
 
-          this.moveToTopWithAnimate();
+        this.moveToTopWithAnimate();
 
           this.messages.at(this.messages.length - 2).sending = false
           this.messages.at(this.messages.length - 2).sent = true
@@ -146,19 +147,19 @@ export default {
 
           this.newMessageText = "";
 
-          const params = {
-          OutputFormat: 'mp3',
-          Text: this.messages.at(this.messages.length - 1).text,
-          VoiceId: 'Joanna'
-        };
+        //   const params = {
+        //   OutputFormat: 'mp3',
+        //   Text: this.messages.at(this.messages.length - 1).text,
+        //   VoiceId: 'Joanna'
+        // };
 
-        const response = await this.polly.synthesizeSpeech(params).promise();
-        const aContext = new AudioContext();
+        // const response = await this.polly.synthesizeSpeech(params).promise();
+        // const aContext = new AudioContext();
 
-        const source = aContext.createBufferSource();
-        source.buffer = await aContext.decodeAudioData(response.AudioStream.buffer);
-        source.connect(aContext.destination);
-        source.start();
+        // const source = aContext.createBufferSource();
+        // source.buffer = await aContext.decodeAudioData(response.AudioStream.buffer);
+        // source.connect(aContext.destination);
+        // source.start();
 
 
         }
