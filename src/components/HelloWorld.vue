@@ -1,10 +1,10 @@
 <template>
   <v-container>
-    <v-row style="height: 500px;" justify="center">
+    <v-row justify="center">
       <v-col cols="12">
         <v-sheet class="pa-2 rounded-lg" elevation="12">
           <v-card elevation="4">
-            <div class="pa-4 text-center">
+            <div class="pa-4 text-center chat-header">
               <h3>Confluence Chat Bot <v-icon
                   color="green">mdi-account-badge-outline</v-icon></h3>
             </div>
@@ -33,12 +33,12 @@
             </v-row>
           </div>
           <v-row class="pt-5" align="center">
-            <v-col xs="10" sm="10" md="10" lg="11" xl="11">
+            <v-col xs="8" sm="10" md="11" lg="11" xl="11">
               <v-text-field :disabled="!textBox" variant="outlined" label="Type here" hide-details
                 v-model="newMessageText" required></v-text-field>
             </v-col>
-            <v-col xs="2" sm="2" md="2" lg="1" xl="1">
-              <v-btn :disabled="!this.sendBtn" @click="addMessage" icon="mdi-send" color="primary"></v-btn>
+            <v-col xs="3" sm="2" md="1" lg="1" xl="1" align="right">
+              <v-btn :disabled="!this.sendBtn" @click="addMessage" icon="mdi-send" color="#E68131"></v-btn>
             </v-col>
           </v-row>
         </v-sheet>
@@ -84,7 +84,7 @@ export default {
 
       this.moveToTopWithAnimate();
 
-      let res = await axios.post('https://rambaseapp.azurewebsites.net//askQuestion', {
+      let res = await axios.post('https://rambaseapp.azurewebsites.net/askQuestion', {
         question : this.newMessageText,
       }).then(async res => {
         console.log("Response" , res)
@@ -180,5 +180,10 @@ export default {
 .chat-messages::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #467fa0;
+}
+
+.chat-header {
+  background-color: #2D384C;
+  color: #DBE4EB;
 }
 </style>
