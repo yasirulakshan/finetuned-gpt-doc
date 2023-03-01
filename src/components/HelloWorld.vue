@@ -5,7 +5,7 @@
         <v-sheet class="pa-2 rounded-lg" elevation="12">
           <v-card elevation="4">
             <div class="pa-4 text-center">
-              <h3>{{ options.filter(e => e.value == selectedOption)[0].name }} <v-icon
+              <h3>Confluence Chat Bot <v-icon
                   color="green">mdi-account-badge-outline</v-icon></h3>
             </div>
           </v-card>
@@ -59,11 +59,6 @@ export default {
     return {
       ready: true,
       messages: [],
-      options: [
-        { name: 'Base Model', value: 'base' },
-        { name: 'Fine Tuned Model', value: 'tuned' }
-      ],
-      selectedOption: "base",
       newMessageText: '',
       polly: null,
       textBox: true,
@@ -71,16 +66,6 @@ export default {
       fullText: '',
       partialFullText: ''
     };
-  },
-  mounted() {
-
-    this.polly = new AWS.Polly({
-      region: 'us-east-1',
-      accessKeyId: 'AKIAZZIJIA56NOTTOEVS',
-      secretAccessKey: '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',
-    });
-
-
   },
   methods: {
     async addMessage() {
