@@ -165,7 +165,7 @@ export default {
 }
 
 .chat-messages {
-  background-color: #9CC3D5FF;
+  background-color: #DBE4EB ;
   height: 60vh;
   overflow-y: scroll;
   padding: 10px;
