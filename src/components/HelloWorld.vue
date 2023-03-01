@@ -84,9 +84,10 @@ export default {
 
       this.moveToTopWithAnimate();
 
-      let res = await axios.post('http://127.0.0.1:5000/askQuestion', {
+      let res = await axios.post('https://rambaseapp.azurewebsites.net//askQuestion', {
         question : this.newMessageText,
       }).then(async res => {
+        console.log("Response" , res)
 
         if (res.status == 200) {
 
