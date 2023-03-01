@@ -41,13 +41,6 @@
               <v-btn :disabled="!this.sendBtn" @click="addMessage" icon="mdi-send" color="primary"></v-btn>
             </v-col>
           </v-row>
-          <v-row class="pb-5">
-            <v-col cols="6">
-              <v-select v-model="selectedOption" variant="outlined" item-value="value" item-title="name" :items="options"
-                hide-details required label="Choose the model" @update:model-value="resetChat">
-              </v-select>
-            </v-col>
-          </v-row>
         </v-sheet>
       </v-col>
     </v-row>
@@ -106,25 +99,11 @@ export default {
 
       this.moveToTopWithAnimate();
 
-      // this.partialFullText += "Q: " + this.newMessageText + "\nA:";
-      // console.log(this.partialFullText);
-
       let res = await axios.post('http://127.0.0.1:5000/askQuestion', {
-        // prompt: this.partialFullText,
         question : this.newMessageText,
       }).then(async res => {
 
         if (res.status == 200) {
-
-          // console.log("response:" , res);
-
-          // res = res.data.choices[0].text.replace(/\\n/g, "")
-          // res = res.replace(/\\/g, "")
-          // res = res.replace(/!/g, "")
-          // res = res.replace(/#/g, "")
-
-          // this.partialFullText += res + "\n\n";
-          // this.fullText = this.partialFullText
 
           await this.messages.push({
             id: this.messages.length + 1,
@@ -147,27 +126,11 @@ export default {
 
           this.newMessageText = "";
 
-        //   const params = {
-        //   OutputFormat: 'mp3',
-        //   Text: this.messages.at(this.messages.length - 1).text,
-        //   VoiceId: 'Joanna'
-        // };
-
-        // const response = await this.polly.synthesizeSpeech(params).promise();
-        // const aContext = new AudioContext();
-
-        // const source = aContext.createBufferSource();
-        // source.buffer = await aContext.decodeAudioData(response.AudioStream.buffer);
-        // source.connect(aContext.destination);
-        // source.start();
-
-
         }
 
 
       }).catch(e => {
-
-        // this.partialFullText = this.fullText
+        
         swal(e.response.data.message, e.response.data.statusCode.toString(), "error").then((value) => {
           window.location.reload();
         });
