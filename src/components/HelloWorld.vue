@@ -5,7 +5,7 @@
         <v-sheet class="pa-2 rounded-lg" elevation="12">
           <v-card elevation="4">
             <div class="pa-4 text-center chat-header">
-              <h3>Confluence Chat Bot <v-icon
+              <h3>Sales Chat Bot <v-icon
                   color="green">mdi-account-badge-outline</v-icon></h3>
             </div>
           </v-card>
