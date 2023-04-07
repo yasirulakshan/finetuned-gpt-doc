@@ -6,7 +6,7 @@
           <v-card elevation="4">
             <div class="pa-4 text-center chat-header">
               <h3>
-                Sales Chat Bot
+                Chat Bot
                 <v-icon color="green">mdi-account-badge-outline</v-icon>
               </h3>
             </div>
@@ -125,7 +125,7 @@ export default {
       this.moveToTopWithAnimate();
 
       let res = await axios
-        .post("https://rambaseapp.azurewebsites.net/askQuestion", {
+        .post("https://pdf-chat-backend.azurewebsites.net/askQuestion", {
           question: this.newMessageText,
         })
         .then(async (res) => {
